@@ -1,6 +1,5 @@
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, jsonify
 from .models import Escalator
-from pprint import pprint
 
 
 escalators = Blueprint("escalators", __name__, url_prefix="/escalators")
@@ -15,12 +14,12 @@ def list_escalators():
     data = []
     for escalator in escalators:
         item = escalator.to_dict()
+
         item["history"] = {
             "up": [h.to_dict() for h in escalator.history_up],
             "down": [h.to_dict() for h in escalator.history_down]
         }
-        del item['history_down']
-        del item['history_up']
+
         data.append(item)
 
     return jsonify(data)

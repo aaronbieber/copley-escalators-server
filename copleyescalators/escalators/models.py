@@ -18,15 +18,15 @@ class Escalator(db.Model):
 
     history_up = db.relationship(
         'EscalatorHistory',
-        lazy='joined',
         primaryjoin="and_(Escalator.id==EscalatorHistory.escalator,"
-        "EscalatorHistory.direction=='up')")
+        "EscalatorHistory.direction=='up')",
+        order_by=db.desc("escalator_history.added"))
 
     history_down = db.relationship(
         'EscalatorHistory',
-        lazy='joined',
         primaryjoin="and_(Escalator.id==EscalatorHistory.escalator,"
-        "EscalatorHistory.direction=='down')")
+        "EscalatorHistory.direction=='down')",
+        order_by=db.desc("escalator_history.added"))
 
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items()
