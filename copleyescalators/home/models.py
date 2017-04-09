@@ -19,4 +19,5 @@ class User(db.Model):
         return u"<User %s>" % self.name
 
     def to_dict(self):
-        return {k: v for k, v in self.__dict__.items() if k != "_sa_instance_state"}
+        return {k: v for k, v in self.__dict__.items()
+                if k != "_sa_instance_state"}

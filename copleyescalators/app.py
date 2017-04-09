@@ -5,9 +5,11 @@ from flask import Flask, url_for
 from pprint import pprint
 from .extensions import db
 from .home import home
+from .escalators import escalators
 
 BLUEPRINTS = [
-    home
+    home,
+    escalators
 ]
 
 # For import *
