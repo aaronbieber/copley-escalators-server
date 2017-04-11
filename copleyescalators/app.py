@@ -17,10 +17,7 @@ __all__ = ['create_app']
 
 
 def list_routes(app):
-    import urllib
-    output = []
     for rule in app.url_map.iter_rules():
-
         pprint(rule)
 
 
@@ -32,7 +29,7 @@ def create_app():
     configure_blueprints(app, BLUEPRINTS)
     db.init_app(app)
 
-    list_routes(app)
+    # list_routes(app)
 
     return app
 
