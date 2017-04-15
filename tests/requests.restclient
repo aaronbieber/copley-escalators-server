@@ -1,0 +1,19 @@
+# Escalators testing
+
+# Main page
+GET http://127.0.0.1:5000
+
+# All escalators
+GET http://127.0.0.1:5000/escalators/
+
+# Just one escalator
+GET http://127.0.0.1:5000/escalators/1
+
+# History for one escalator + direction
+GET http://127.0.0.1:5000/escalators/1/history/up
+
+# Submit a new event
+POST http://127.0.0.1:5000/escalators/1/up
+Content-Type: application/json
+
+{ "status": "fixed" }
