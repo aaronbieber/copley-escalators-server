@@ -28,9 +28,22 @@ class Escalator(db.Model):
         "EscalatorHistory.direction=='down')",
         order_by=db.desc("escalator_history.added"))
 
+    @property
+    def history(self):
+        return {
+            "up": self.history_up,
+            "down": self.history_down
+        }
+
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items()
                 if k != "_sa_instance_state"}
+
+    def __repr__(self):
+        return (
+            "Escalator(id={self.id}, top={self.top}, bottom={self.bottom}" +
+            "up={self.up}, down={self.down})"
+            .format(self=self))
 
 
 class EscalatorHistory(db.Model):
@@ -49,3 +62,9 @@ class EscalatorHistory(db.Model):
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items()
                 if k != "_sa_instance_state"}
+
+    def __repr__(self):
+        return (
+            "EscalatorHistory(id={self.id}, direction={self.direction}, " +
+            "event={self.event}, added={self.added})"
+            .format(self=self))

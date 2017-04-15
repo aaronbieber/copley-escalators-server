@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .models import Escalator, EscalatorHistory
 from copleyescalators.extensions import db, date_string
+from pprint import pprint
 
 
 escalators = Blueprint("escalators", __name__, url_prefix="/escalators")
@@ -11,6 +12,8 @@ def list_escalators():
     """List all escalators.
     """
     escalators = Escalator.query.all()
+
+    pprint(escalators[0])
 
     return jsonify([e.to_dict() for e in escalators])
 
@@ -40,11 +43,18 @@ def update_escalator(id, direction):
         return jsonify(error="Provide a status key with value " +
                        "\"broken\" or \"fixed\".")
 
-    # escalator = Escalator.query.filter_by(id=id).first()
-    history = EscalatorHistory.query.filter_by(
-        escalator=id,
-        direction=direction
-    ).order_by(db.desc(EscalatorHistory.added)).all()
+    if data["status"] == "broken":
+        status_value = False
+    else:
+        status_value = True
+
+    escalator = Escalator.query.filter_by(id=id).first()
+    history = escalator.history[direction]
+
+    # history = EscalatorHistory.query.filter_by(
+    #     escalator=id,
+    #     direction=direction
+    # ).order_by(db.desc(EscalatorHistory.added)).all()
 
     new_history = EscalatorHistory(escalator=id,
                                    direction=direction,
@@ -52,16 +62,22 @@ def update_escalator(id, direction):
                                    added=date_string())
     db.session.add(new_history)
 
+    escalator_updated = False
     if len(history) and history[0].event == new_history.event:
-        escalator = Escalator.query.filter_by(id=id).first()
-        setattr(escalator, direction, not getattr(escalator, direction))
+        if getattr(escalator, direction) != status_value:
+            setattr(escalator, direction, status_value)
+            escalator_updated = True
 
     try:
         db.session.commit()
     except:
-        return jsonify({"status": "Error"})
+        return jsonify(status="Error")
 
-    return jsonify({"status": "OK"})
+    return jsonify(
+        new_history=new_history.to_dict(),
+        escalator=escalator.to_dict(),
+        escalator_updated=escalator_updated
+    )
 
 
 @escalators.route('/<int:id>/history/<string:direction>')
