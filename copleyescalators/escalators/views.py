@@ -51,11 +51,6 @@ def update_escalator(id, direction):
     escalator = Escalator.query.filter_by(id=id).first()
     history = escalator.history[direction]
 
-    # history = EscalatorHistory.query.filter_by(
-    #     escalator=id,
-    #     direction=direction
-    # ).order_by(db.desc(EscalatorHistory.added)).all()
-
     new_history = EscalatorHistory(escalator=id,
                                    direction=direction,
                                    event=data["status"],
