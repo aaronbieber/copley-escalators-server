@@ -41,8 +41,8 @@ class Escalator(db.Model):
 
     def __repr__(self):
         return (
-            "Escalator(id={self.id}, top={self.top}, bottom={self.bottom}" +
-            "up={self.up}, down={self.down})"
+            ("Escalator(id={self.id}, top={self.top}, bottom={self.bottom}, " +
+             "up={self.up}, down={self.down})")
             .format(self=self))
 
 
@@ -65,6 +65,6 @@ class EscalatorHistory(db.Model):
 
     def __repr__(self):
         return (
-            "EscalatorHistory(id={self.id}, direction={self.direction}, " +
-            "event={self.event}, added={self.added})"
+            ("EscalatorHistory(id={self.id}, direction={self.direction}, " +
+             "event={self.event}, added={self.added})")
             .format(self=self))
