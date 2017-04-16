@@ -23,7 +23,10 @@ def escalator(id):
     escalator = Escalator.query.filter_by(id=id).first()
 
     if escalator is None:
-        return jsonify(error="Escalator %s not found." % id)
+        return jsonify(
+            status=False,
+            message="Escalator %s could not be found." % id
+        ), 404
 
     return jsonify(escalator.to_dict())
 
@@ -47,6 +50,13 @@ def update_escalator(id, direction):
         status_value = True
 
     escalator = Escalator.query.filter_by(id=id).first()
+
+    if escalator is None:
+        return jsonify(
+            status=False,
+            message="Escalator %s (%s) could not be found." % (id, direction)
+        ), 404
+
     history = escalator.history[direction]
 
     new_history = EscalatorHistory(escalator=id,
@@ -64,7 +74,7 @@ def update_escalator(id, direction):
     try:
         db.session.commit()
     except:
-        return jsonify(status="Error")
+        return jsonify(status=False)
 
     return jsonify(
         new_history=new_history.to_dict(),
@@ -83,7 +93,10 @@ def escalator_history(id, direction):
     escalator = Escalator.query.filter_by(id=id).first()
 
     if escalator is None:
-        return jsonify(error="Escalator %s not found." % id)
+        return jsonify(
+            status=False,
+            message="Escalator %s could not be found." % id
+        ), 404
 
     if direction == "up":
         return jsonify([h.to_dict() for h in escalator.history_up])

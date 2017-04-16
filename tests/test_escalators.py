@@ -1,14 +1,15 @@
 from flask import json
 from . import BaseTestCase
-from copleyescalators.extensions import db
-from copleyescalators.escalators.models import Escalator
+from datetime import datetime
+from copleyescalators.extensions import db, date_string
+from copleyescalators.escalators.models import Escalator, EscalatorHistory
 from pprint import pprint
 
 
-class EscalatorsTestCase(BaseTestCase):
+class EscalatorsReadTestCase(BaseTestCase):
 
     def setUp(self):
-        super(EscalatorsTestCase, self).setUp()
+        super(EscalatorsReadTestCase, self).setUp()
 
         e = Escalator(top="top1", bottom="bottom1", up=True, down=False)
         db.session.add(e)
@@ -19,13 +20,34 @@ class EscalatorsTestCase(BaseTestCase):
         e = Escalator(top="top4", bottom="bottom4", up=True, down=False)
         db.session.add(e)
 
+        h = EscalatorHistory(escalator=1,
+                             direction="up",
+                             event="broken",
+                             added=date_string(
+                                 datetime(2017, 1, 1, 7, 0, 0)))
+        db.session.add(h)
+
+        h = EscalatorHistory(escalator=1,
+                             direction="up",
+                             event="broken",
+                             added=date_string(
+                                 datetime(2017, 1, 1, 7, 30, 0)))
+        db.session.add(h)
+
+        h = EscalatorHistory(escalator=1,
+                             direction="up",
+                             event="fixed",
+                             added=date_string(
+                                 datetime(2017, 1, 1, 8, 00, 0)))
+        db.session.add(h)
+
         db.session.commit()
 
     def tearDown(self):
-        super(EscalatorsTestCase, self).tearDown()
+        super(EscalatorsReadTestCase, self).tearDown()
 
     def test_get_all_escalators(self):
-        esc = self.client.get('/escalators/')
+        esc = self.client.get("/escalators/")
 
         assert esc.status_code == 200
         assert len(esc.json) == 4
@@ -35,7 +57,7 @@ class EscalatorsTestCase(BaseTestCase):
         assert len([e for e in esc.json if "bottom" in e["bottom"]]) == 4
 
     def test_get_one_escalator(self):
-        esc = self.client.get('/escalators/1')
+        esc = self.client.get("/escalators/1")
 
         assert esc.status_code == 200
         assert esc.json is not None
@@ -44,6 +66,45 @@ class EscalatorsTestCase(BaseTestCase):
         assert esc.json["bottom"] == "bottom1"
         assert esc.json["up"] is True
         assert esc.json["down"] is False
+
+    def test_get_one_nonexistent_escalator(self):
+        esc = self.client.get("/escalators/7")
+
+        assert esc.status_code == 404
+        assert "status" in esc.json
+        assert esc.json["status"] is False
+
+    def test_get_escalator_history(self):
+        esch = self.client.get("/escalators/1/history/up")
+
+        assert esch.status_code == 200
+        assert len(esch.json) == 3
+        assert len([h for h in esch.json if h["direction"] == "up"]) == 3
+
+        # Ensures descending order by time
+        assert esch.json[0]["event"] == "fixed"
+        assert esch.json[1]["event"] == "broken"
+        assert esch.json[2]["event"] == "broken"
+
+    def test_get_nonexistent_escalator_hisotry(self):
+        esch = self.client.get("/escalators/7/history/up")
+
+        assert esch.status_code == 404
+        assert "status" in esch.json
+        assert esch.json["status"] is False
+
+
+class EscalatorsUpdateTestCase(BaseTestCase):
+
+    def setUp(self):
+        super(EscalatorsUpdateTestCase, self).setUp()
+
+        e = Escalator(top="top1", bottom="bottom1", up=True, down=False)
+        db.session.add(e)
+        db.session.commit()
+
+    def tearDown(self):
+        super(EscalatorsUpdateTestCase, self).tearDown()
 
     def test_update_escalator(self):
         esc = self.client.post("/escalators/1/up",
@@ -59,3 +120,12 @@ class EscalatorsTestCase(BaseTestCase):
 
         assert esc.status_code == 200
         assert esc.json["escalator_updated"] is True
+
+    def test_update_nonexistent_escalator(self):
+        esc = self.client.post("/escalators/2/up",
+                               data=json.dumps(dict(status="broken")),
+                               content_type="application/json")
+
+        assert esc.status_code == 404
+        assert "status" in esc.json
+        assert esc.json["status"] is False
