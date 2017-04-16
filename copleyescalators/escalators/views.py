@@ -13,8 +13,6 @@ def list_escalators():
     """
     escalators = Escalator.query.all()
 
-    pprint(escalators[0])
-
     return jsonify([e.to_dict() for e in escalators])
 
 

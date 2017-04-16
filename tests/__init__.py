@@ -8,6 +8,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         super(BaseTestCase, self).setUp()
         self.client = self.app.test_client()
+        db.create_all()
 
     def create_app(self):
         return create_app()

@@ -20,13 +20,13 @@ class Escalator(db.Model):
         'EscalatorHistory',
         primaryjoin="and_(Escalator.id==EscalatorHistory.escalator,"
         "EscalatorHistory.direction=='up')",
-        order_by=db.desc("escalator_history.added"))
+        order_by=db.desc("added"))
 
     history_down = db.relationship(
         'EscalatorHistory',
         primaryjoin="and_(Escalator.id==EscalatorHistory.escalator,"
         "EscalatorHistory.direction=='down')",
-        order_by=db.desc("escalator_history.added"))
+        order_by=db.desc("added"))
 
     @property
     def history(self):
