@@ -9,11 +9,23 @@ GET http://127.0.0.1:5000/escalators/
 # Just one escalator
 GET http://127.0.0.1:5000/escalators/1
 
+# Just one nonexistent escalator
+GET http://127.0.0.1:5000/escalators/7
+
 # History for one escalator + direction
 GET http://127.0.0.1:5000/escalators/1/history/up
 
+# History for one nonexistent escalator + direction
+GET http://127.0.0.1:5000/escalators/7/history/up
+
 # Submit a new event
 POST http://127.0.0.1:5000/escalators/1/up
+Content-Type: application/json
+
+{ "status": "fixed" }
+
+# Update a nonexistent escalator
+POST http://127.0.0.1:5000/escalators/7/up
 Content-Type: application/json
 
 { "status": "fixed" }
