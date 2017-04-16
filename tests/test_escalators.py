@@ -8,7 +8,7 @@ from pprint import pprint
 class EscalatorsTestCase(BaseTestCase):
 
     def setUp(self):
-        super(TestTestCase, self).setUp()
+        super(EscalatorsTestCase, self).setUp()
 
         e = Escalator(top="top1", bottom="bottom1", up=True, down=False)
         db.session.add(e)
@@ -22,8 +22,7 @@ class EscalatorsTestCase(BaseTestCase):
         db.session.commit()
 
     def tearDown(self):
-        Escalator.query.delete()
-        db.session.commit()
+        super(EscalatorsTestCase, self).tearDown()
 
     def test_get_all_escalators(self):
         esc = self.client.get('/escalators/')
