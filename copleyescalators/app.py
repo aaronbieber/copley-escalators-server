@@ -24,7 +24,6 @@ def list_routes(app):
 def create_app():
     """Build the WSGI application callable."""
     app = Flask(__name__)
-    app.debug = True
     configure_app(app)
     configure_blueprints(app, BLUEPRINTS)
     db.init_app(app)
