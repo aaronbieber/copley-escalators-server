@@ -1,7 +1,7 @@
 """Initialize the Flask app and bootstrap all modules and interfaces."""
 
 import os
-from flask import Flask, url_for
+from flask import Flask
 from pprint import pprint
 from .extensions import db
 from .home import home
@@ -13,7 +13,7 @@ BLUEPRINTS = [
 ]
 
 # For import *
-__all__ = ['create_app']
+__all__ = ["create_app"]
 
 
 def list_routes(app):
@@ -28,18 +28,17 @@ def create_app():
     configure_blueprints(app, BLUEPRINTS)
     db.init_app(app)
 
-    # list_routes(app)
-
     return app
 
 
 def configure_app(app):
     """Load a Flask application configuration.
     """
-    if 'FLASK_CONFIG' in os.environ:
+    if "FLASK_CONFIG" in os.environ:
         app.config.from_object(os.environ['FLASK_CONFIG'])
     else:
-        raise ValueError("Cannot load configuration without a FLASK_CONFIG variable.")
+        raise ValueError("Cannot load configuration without a " +
+                         "FLASK_CONFIG variable.")
 
 
 def configure_blueprints(app, blueprints):
