@@ -10,8 +10,8 @@ class User(db.Model):
     """
     __tablename__ = "users"
 
-    id = db.Column("id", db.Integer, primary_key=True)
-    name = db.Column("name", db.String(100), nullable=False)
+    id = db.Column("id", db.String(40), primary_key=True)
+    name = db.Column("name", db.String(100), nullable=True)
 
     def __unicode__(self):
         """Stringify.

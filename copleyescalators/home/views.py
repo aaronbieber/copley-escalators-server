@@ -1,14 +1,7 @@
-from flask import Blueprint, Response, jsonify
-from .models import User
+from flask import Blueprint, Response
 
 
-home = Blueprint('home', __name__)
-
-
-@home.route('/users')
-def users():
-    users = User.query.all()
-    return jsonify(users=[u.to_dict() for u in users])
+home = Blueprint('', __name__)
 
 
 @home.route('/')
