@@ -35,7 +35,7 @@ serve: devel
 	FLASK_CONFIG="copleyescalators.settings.local.LocalConfig" \
 	FLASK_DEBUG=1 \
 	FLASK_APP=server.py \
-	flask run
+	flask run --host=0.0.0.0
 
 test: devel
 	source .venv/bin/activate; \
