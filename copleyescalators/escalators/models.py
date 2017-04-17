@@ -68,5 +68,5 @@ class EscalatorHistory(db.Model):
     def __repr__(self):
         return (
             ("EscalatorHistory(id={self.id}, direction={self.direction}, " +
-             "event={self.event}, added={self.added})")
+             "event={self.event}, user={self.user} added={self.added})")
             .format(self=self))
