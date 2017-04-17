@@ -68,7 +68,7 @@ class EscalatorsReadTestCase(BaseTestCase):
         assert esc.json["down"] is False
 
     def test_get_one_nonexistent_escalator(self):
-        esc = self.client.get("/escalators/7")
+        esc = self.client.get("/escalators/999")
 
         assert esc.status_code == 404
         assert "status" in esc.json
@@ -87,7 +87,7 @@ class EscalatorsReadTestCase(BaseTestCase):
         assert esch.json[2]["event"] == "broken"
 
     def test_get_nonexistent_escalator_hisotry(self):
-        esch = self.client.get("/escalators/7/history/up")
+        esch = self.client.get("/escalators/999/history/up")
 
         assert esch.status_code == 404
         assert "status" in esch.json
@@ -101,6 +101,9 @@ class EscalatorsUpdateTestCase(BaseTestCase):
 
         e = Escalator(top="top1", bottom="bottom1", up=True, down=False)
         db.session.add(e)
+        e = Escalator(top="top2", bottom="bottom2", up=True, down=False)
+        db.session.add(e)
+
         db.session.commit()
 
     def tearDown(self):
@@ -109,7 +112,7 @@ class EscalatorsUpdateTestCase(BaseTestCase):
     def test_invalid_status(self):
         esc = self.client.post("/escalators/1/up",
                                data=json.dumps(dict(
-                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="quux")),
                                content_type="application/json")
 
@@ -129,7 +132,7 @@ class EscalatorsUpdateTestCase(BaseTestCase):
     def test_update_escalator(self):
         esc = self.client.post("/escalators/1/up",
                                data=json.dumps(dict(
-                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="broken")),
                                content_type="application/json")
 
@@ -138,17 +141,36 @@ class EscalatorsUpdateTestCase(BaseTestCase):
 
         esc = self.client.post("/escalators/1/up",
                                data=json.dumps(dict(
-                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   user="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
                                    status="broken")),
                                content_type="application/json")
 
         assert esc.status_code == 200
         assert esc.json["escalator_updated"] is True
 
-    def test_update_nonexistent_escalator(self):
+    def test_update_escalator_too_quickly(self):
         esc = self.client.post("/escalators/2/up",
                                data=json.dumps(dict(
-                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                   status="broken")),
+                               content_type="application/json")
+
+        assert esc.status_code == 200
+        assert esc.json["status"] is True
+
+        esc = self.client.post("/escalators/2/up",
+                               data=json.dumps(dict(
+                                   user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                   status="broken")),
+                               content_type="application/json")
+
+        assert esc.status_code == 429
+        assert esc.json["status"] is False
+
+    def test_update_nonexistent_escalator(self):
+        esc = self.client.post("/escalators/999/up",
+                               data=json.dumps(dict(
+                                   user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="broken")),
                                content_type="application/json")
 

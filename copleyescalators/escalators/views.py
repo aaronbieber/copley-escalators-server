@@ -35,12 +35,13 @@ def escalator(id):
 def update_escalator(id, direction):
     """Update the status of one escalator.
     """
+
     if direction != "up" and direction != "down":
         return jsonify(error="Specify direction \"up\" or \"down\".")
 
     data = request.get_json(force=True)
     if "status" not in data or \
-       data["status"] != "broken" and data["status"] != "fixed":
+       data["status"] not in ["broken", "fixed"]:
         return jsonify(
             status=False,
             message="Provide a status key with value " +
@@ -67,7 +68,22 @@ def update_escalator(id, direction):
             message="Escalator %s (%s) could not be found." % (id, direction)
         ), 404
 
+    return_value = {
+        "status": True,
+        "escalator_updated": False,
+        "escalator": escalator.to_dict()
+    }
+
     history = escalator.history[direction]
+    last_updated = [h for h in history if h.user == data["user"]]
+    if len(last_updated):
+        if int(date_string()) - last_updated[0].added < (30 * 60 * 60):
+            return jsonify(
+                status=False,
+                message=("Enhance your calm; you may not report the same " +
+                         "escalator again within 30 minutes of your last " +
+                         "report.")
+            ), 429
 
     new_history = EscalatorHistory(escalator=id,
                                    user=data["user"],
@@ -76,28 +92,24 @@ def update_escalator(id, direction):
                                    added=date_string())
     db.session.add(new_history)
 
-    escalator_updated = False
     if len(history) and history[0].event == new_history.event:
         if getattr(escalator, direction) != status_value:
             setattr(escalator, direction, status_value)
-            escalator_updated = True
+            return_value["escalator_updated"] = True
 
     try:
         db.session.commit()
     except:
         return jsonify(status=False)
 
-    return jsonify(
-        new_history=new_history.to_dict(),
-        escalator=escalator.to_dict(),
-        escalator_updated=escalator_updated
-    )
+    return jsonify(return_value)
 
 
 @escalators.route('/<int:id>/history/<string:direction>')
 def escalator_history(id, direction):
     """Get an escalator's history
     """
+
     if direction != "up" and direction != "down":
         return jsonify(error="Specify direction \"up\" or \"down\".")
 
