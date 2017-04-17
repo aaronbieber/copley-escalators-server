@@ -106,16 +106,40 @@ class EscalatorsUpdateTestCase(BaseTestCase):
     def tearDown(self):
         super(EscalatorsUpdateTestCase, self).tearDown()
 
-    def test_update_escalator(self):
+    def test_invalid_status(self):
+        esc = self.client.post("/escalators/1/up",
+                               data=json.dumps(dict(
+                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   status="quux")),
+                               content_type="application/json")
+
+        assert esc.status_code == 400
+        assert "message" in esc.json
+        assert "status" in esc.json["message"]
+
+    def test_update_with_missing_user(self):
         esc = self.client.post("/escalators/1/up",
                                data=json.dumps(dict(status="broken")),
+                               content_type="application/json")
+
+        assert esc.status_code == 400
+        assert "message" in esc.json
+        assert "user" in esc.json["message"]
+
+    def test_update_escalator(self):
+        esc = self.client.post("/escalators/1/up",
+                               data=json.dumps(dict(
+                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   status="broken")),
                                content_type="application/json")
 
         assert esc.status_code == 200
         assert esc.json["escalator_updated"] is False
 
         esc = self.client.post("/escalators/1/up",
-                               data=json.dumps(dict(status="broken")),
+                               data=json.dumps(dict(
+                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   status="broken")),
                                content_type="application/json")
 
         assert esc.status_code == 200
@@ -123,7 +147,9 @@ class EscalatorsUpdateTestCase(BaseTestCase):
 
     def test_update_nonexistent_escalator(self):
         esc = self.client.post("/escalators/2/up",
-                               data=json.dumps(dict(status="broken")),
+                               data=json.dumps(dict(
+                                   user="a7746131-9bb7-4948-9d1d-8fcc616d84c1",
+                                   status="broken")),
                                content_type="application/json")
 
         assert esc.status_code == 404

@@ -41,8 +41,18 @@ def update_escalator(id, direction):
     data = request.get_json(force=True)
     if "status" not in data or \
        data["status"] != "broken" and data["status"] != "fixed":
-        return jsonify(error="Provide a status key with value " +
-                       "\"broken\" or \"fixed\".")
+        return jsonify(
+            status=False,
+            message="Provide a status key with value " +
+            "\"broken\" or \"fixed\"."
+        ), 400
+
+    if "user" not in data or \
+       len(data["user"]) == 0:
+        return jsonify(
+            status=False,
+            message="You must provide a valid user UUID."
+        ), 400
 
     if data["status"] == "broken":
         status_value = False
@@ -60,6 +70,7 @@ def update_escalator(id, direction):
     history = escalator.history[direction]
 
     new_history = EscalatorHistory(escalator=id,
+                                   user=data["user"],
                                    direction=direction,
                                    event=data["status"],
                                    added=date_string())

@@ -55,6 +55,8 @@ class EscalatorHistory(db.Model):
     escalator = db.Column("escalator",
                           db.Integer,
                           db.ForeignKey("escalators.id"))
+    user = db.Column("user",
+                     db.String(40))
     direction = db.Column("direction", db.String(4), nullable=False)
     event = db.Column("event", db.String(25), nullable=False)
     added = db.Column("added", db.Integer, nullable=False)
