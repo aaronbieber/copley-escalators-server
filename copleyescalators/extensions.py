@@ -6,6 +6,6 @@ def date_string(dt=None):
     from datetime import datetime
 
     if dt is None:
-        return datetime.today().strftime("%Y-%m-%d %H:%M:%S.000")
+        return datetime.today().strftime("%s")
     else:
-        return dt.strftime("%Y-%m-%d %H:%M:%S.000")
+        return dt.strftime("%s")

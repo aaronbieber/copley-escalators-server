@@ -57,7 +57,7 @@ class EscalatorHistory(db.Model):
                           db.ForeignKey("escalators.id"))
     direction = db.Column("direction", db.String(4), nullable=False)
     event = db.Column("event", db.String(25), nullable=False)
-    added = db.Column("added", db.String(25), nullable=False)
+    added = db.Column("added", db.Integer, nullable=False)
 
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items()
