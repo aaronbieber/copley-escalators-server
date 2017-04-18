@@ -8,6 +8,8 @@
 # virtualenvwrapper and helper tools (notably, the oh-my-zsh
 # virtualenvwrapper plugin).
 
+SHELL=/bin/bash
+
 .PHONY: devel prod test serve
 .SUFFIXES:
 
