@@ -6,6 +6,7 @@ from pprint import pprint
 from .extensions import db
 from .home import home
 from .escalators import escalators
+from users.auth import auth
 
 BLUEPRINTS = [
     home,
@@ -27,6 +28,7 @@ def create_app():
     configure_app(app)
     configure_blueprints(app, BLUEPRINTS)
     db.init_app(app)
+    app.before_request(auth)
 
     return app
 

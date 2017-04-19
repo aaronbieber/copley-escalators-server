@@ -21,3 +21,19 @@ class User(db.Model):
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items()
                 if k != "_sa_instance_state"}
+
+
+class Auth(db.Model):
+    """Auth tokens model.
+    """
+    __tablename__ = "auth_tokens"
+
+    token = db.Column("token", db.String(40), primary_key=True)
+
+    def __unicode__(self):
+        """Stringify.
+        """
+        return u"<Token token=%s>" % self.token
+
+    def tokens_as_list(self):
+        return [r.token for r in self.query.all()]
