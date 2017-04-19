@@ -13,10 +13,10 @@ class User(db.Model):
     id = db.Column("id", db.String(40), primary_key=True)
     name = db.Column("name", db.String(100), nullable=True)
 
-    def __unicode__(self):
-        """Stringify.
+    def __repr__(self):
+        """Debug representation.
         """
-        return u"<User %s>" % self.name
+        return u"<User id={user.id}, name={user.name}>".format(user=self)
 
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items()
