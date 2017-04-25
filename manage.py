@@ -44,6 +44,8 @@ def write_seed_data():
          "bottom": "Legal Sea Foods"},
         {"top":    "Tiffany's",
          "bottom": "Champions"},
+        {"top":    "Victoria's Secret",
+         "bottom": "Tiffany's"},
         {"top":    "Champions",
          "bottom": "Huntington Ave"}
     ]
