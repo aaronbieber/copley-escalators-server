@@ -85,11 +85,16 @@ def update_escalator(id, direction):
                          "report.")
             ), 429
 
+    if "added" in data:
+        added = data["added"]
+    else:
+        added = date_string()
+
     new_history = EscalatorHistory(escalator=id,
                                    user=data["user"],
                                    direction=direction,
                                    event=data["status"],
-                                   added=date_string())
+                                   added=added)
     db.session.add(new_history)
 
     if len(history) and history[0].event == new_history.event:

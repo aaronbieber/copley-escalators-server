@@ -3,6 +3,7 @@ from . import BaseTestCase
 from datetime import datetime
 from copleyescalators.extensions import db, date_string
 from copleyescalators.escalators.models import Escalator, EscalatorHistory
+from copleyescalators.users.models import Auth
 from pprint import pprint
 
 
@@ -41,13 +42,17 @@ class EscalatorsReadTestCase(BaseTestCase):
                                  datetime(2017, 1, 1, 8, 00, 0)))
         db.session.add(h)
 
+        a = Auth(token="token-string")
+        db.session.add(a)
+
         db.session.commit()
 
     def tearDown(self):
         super(EscalatorsReadTestCase, self).tearDown()
 
     def test_get_all_escalators(self):
-        esc = self.client.get("/escalators/")
+        esc = self.client.get("/escalators/",
+                              headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 200
         assert len(esc.json) == 4
@@ -57,7 +62,8 @@ class EscalatorsReadTestCase(BaseTestCase):
         assert len([e for e in esc.json if "bottom" in e["bottom"]]) == 4
 
     def test_get_one_escalator(self):
-        esc = self.client.get("/escalators/1")
+        esc = self.client.get("/escalators/1",
+                              headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 200
         assert esc.json is not None
@@ -68,14 +74,16 @@ class EscalatorsReadTestCase(BaseTestCase):
         assert esc.json["down"] is False
 
     def test_get_one_nonexistent_escalator(self):
-        esc = self.client.get("/escalators/999")
+        esc = self.client.get("/escalators/999",
+                              headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 404
         assert "status" in esc.json
         assert esc.json["status"] is False
 
     def test_get_escalator_history(self):
-        esch = self.client.get("/escalators/1/history/up")
+        esch = self.client.get("/escalators/1/history/up",
+                              headers={"Auth-Token": "token-string"})
 
         assert esch.status_code == 200
         assert len(esch.json) == 3
@@ -87,7 +95,8 @@ class EscalatorsReadTestCase(BaseTestCase):
         assert esch.json[2]["event"] == "broken"
 
     def test_get_nonexistent_escalator_hisotry(self):
-        esch = self.client.get("/escalators/999/history/up")
+        esch = self.client.get("/escalators/999/history/up",
+                               headers={"Auth-Token": "token-string"})
 
         assert esch.status_code == 404
         assert "status" in esch.json
@@ -104,6 +113,9 @@ class EscalatorsUpdateTestCase(BaseTestCase):
         e = Escalator(top="top2", bottom="bottom2", up=True, down=False)
         db.session.add(e)
 
+        a = Auth(token="token-string")
+        db.session.add(a)
+
         db.session.commit()
 
     def tearDown(self):
@@ -114,7 +126,8 @@ class EscalatorsUpdateTestCase(BaseTestCase):
                                data=json.dumps(dict(
                                    user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="quux")),
-                               content_type="application/json")
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 400
         assert "message" in esc.json
@@ -123,7 +136,8 @@ class EscalatorsUpdateTestCase(BaseTestCase):
     def test_update_with_missing_user(self):
         esc = self.client.post("/escalators/1/up",
                                data=json.dumps(dict(status="broken")),
-                               content_type="application/json")
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 400
         assert "message" in esc.json
@@ -134,7 +148,8 @@ class EscalatorsUpdateTestCase(BaseTestCase):
                                data=json.dumps(dict(
                                    user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="broken")),
-                               content_type="application/json")
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 200
         assert esc.json["escalator_updated"] is False
@@ -143,17 +158,23 @@ class EscalatorsUpdateTestCase(BaseTestCase):
                                data=json.dumps(dict(
                                    user="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
                                    status="broken")),
-                               content_type="application/json")
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 200
         assert esc.json["escalator_updated"] is True
 
     def test_update_escalator_too_quickly(self):
+        now = int(datetime.today().strftime("%s"))
+        added = now - 1790
+
         esc = self.client.post("/escalators/2/up",
                                data=json.dumps(dict(
                                    user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                                   status="broken")),
-                               content_type="application/json")
+                                   status="broken",
+                                   added=added)),
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 200
         assert esc.json["status"] is True
@@ -162,7 +183,8 @@ class EscalatorsUpdateTestCase(BaseTestCase):
                                data=json.dumps(dict(
                                    user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="broken")),
-                               content_type="application/json")
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 429
         assert esc.json["status"] is False
@@ -172,7 +194,8 @@ class EscalatorsUpdateTestCase(BaseTestCase):
                                data=json.dumps(dict(
                                    user="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                                    status="broken")),
-                               content_type="application/json")
+                               content_type="application/json",
+                               headers={"Auth-Token": "token-string"})
 
         assert esc.status_code == 404
         assert "status" in esc.json
