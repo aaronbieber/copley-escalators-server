@@ -4,13 +4,11 @@ but, close enough.
 """
 from flask import request, jsonify
 from .models import Auth
-from pprint import pprint
 
 
 def auth():
     if "Auth-Token" in request.headers:
         tokens = [a.token for a in Auth.query.all()]
-        pprint(tokens)
 
         if request.headers["Auth-Token"] in tokens:
             return None
