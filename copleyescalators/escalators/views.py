@@ -77,7 +77,7 @@ def update_escalator(id, direction):
     history = escalator.history[direction]
     last_updated = [h for h in history if h.user == data["user"]]
     if len(last_updated):
-        if int(date_string()) - last_updated[0].added < (30 * 60):
+        if (int(date_string()) - last_updated[0].added) < (30 * 60):
             return jsonify(
                 status=False,
                 message=("Enhance your calm; you may not report the same " +
